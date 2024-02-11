@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "551041025614",
+    "project_id": "insa-radar",
+    "storage_bucket": "insa-radar.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:551041025614:android:89c55d9bd7bb8cccdb251f",
+        "android_client_info": {
+          "package_name": "fr.insa.insaradar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7QEEPkPcrMSOlrx2HNTGGKyJP_3zw5Ok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
