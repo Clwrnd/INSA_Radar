@@ -34,30 +34,19 @@
                 android:text="@string/room_name"
                 android:textSize="26sp"
                 android:textStyle="bold"
-                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                />
-            <TextView
-                android:id="@+id/roomAvailability"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="15dp"
-                android:textColor="@color/textColor"
-                android:text="@string/room_availability"
-                android:textSize="26sp"
-                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/roomTextView"
                 />
             <View
                 android:id="@+id/underline"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/underline"
+                android:background="@color/blueBlack"
                 app:layout_constraintBottom_toBottomOf="parent"
                 />
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/expandedLayout"
                 android:layout_width="match_parent"
@@ -67,17 +56,9 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/roomAvailability">
-                <TextView
-                    android:id="@+id/roomDescription"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/room_description"
-                    android:textColor="@color/textColor"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="@id/reserveButton"
-                    app:layout_constraintHorizontal_bias="0.5"/>
+                app:layout_constraintTop_toBottomOf="@+id/roomTextView">
+
+
                 <!-- bouton pour réserver une salle -->
                 <Button
                     android:id="@+id/reserveButton"
@@ -87,11 +68,21 @@
                     android:backgroundTint="@color/buttonColor"
                     android:text="@string/reserve"
                     android:textColor="@color/white"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="@id/roomDescription"
-                    app:layout_constraintEnd_toStartOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent" />
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+                <TextView
+                    android:id="@+id/roomDescription"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="20dp"
+                    android:text="@string/room_description"
+                    android:textColor="@color/textColor"
+                    app:layout_constraintStart_toEndOf="@+id/reserveButton"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/reserveButton"
+                    app:layout_constraintBottom_toBottomOf="@+id/reserveButton" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
 

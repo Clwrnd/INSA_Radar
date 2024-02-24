@@ -16,6 +16,9 @@ public class RoomModel {
         this.name = name;
         this.visible = false;
     }
+    public void collapse() {
+        this.visible = false;
+    }
 
     public String getName() {
         return name;

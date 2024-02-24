@@ -25,18 +25,17 @@ public class RoomsAdapter extends RecyclerView.Adapter<RoomsAdapter.RoomViewHold
 
     @NonNull
     @Override
-    public RoomsAdapter.RoomViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RoomViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.item_room, parent, false);
-        return new RoomsAdapter.RoomViewHolder(view, recyclerViewListener);
+        return new RoomViewHolder(view, recyclerViewListener);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RoomsAdapter.RoomViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RoomViewHolder holder, int position) {
         RoomModel room = rooms.get(position);
-        holder.roomTextView.setText(rooms.get(position).getName());
-        holder.availabilityTextView.setText(rooms.get(position).getAvailability());
-        holder.descriptionTextView.setText(rooms.get(position).getDescription());
+        holder.roomTextView.setText(room.getName() + " - " + room.getAvailability());
+        holder.descriptionTextView.setText(room.getDescription());
         boolean visible = room.isVisible();
         holder.expandedLayout.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
@@ -46,31 +45,34 @@ public class RoomsAdapter extends RecyclerView.Adapter<RoomsAdapter.RoomViewHold
         return rooms.size();
     }
 
-    public static class RoomViewHolder extends RecyclerView.ViewHolder {
-        TextView roomTextView, availabilityTextView, descriptionTextView;
+    public class RoomViewHolder extends RecyclerView.ViewHolder {
+        TextView roomTextView, descriptionTextView;
         ConstraintLayout expandedLayout;
 
         public RoomViewHolder(View itemView, RecyclerViewListener listener) {
             super(itemView);
             roomTextView = itemView.findViewById(R.id.roomTextView);
-            availabilityTextView = itemView.findViewById(R.id.roomAvailability);
             descriptionTextView = itemView.findViewById(R.id.roomDescription);
             expandedLayout = itemView.findViewById(R.id.expandedLayout);
-
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(expandedLayout.getVisibility() == View.VISIBLE) {
-                        expandedLayout.setVisibility(View.GONE);
-                    } else {
-                        expandedLayout.setVisibility(View.VISIBLE);
-                    }
-
-                    if(listener != null) {
-                        int position = getAdapterPosition();
-                        if(position != RecyclerView.NO_POSITION) {
-                            listener.onItemClicked(position);
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        // Collapse all rooms
+                        for (RoomModel room : rooms) {
+                            room.collapse();
                         }
+
+                        // Expand the clicked room
+                        RoomModel clickedRoom = rooms.get(position);
+                        clickedRoom.setVisible(true);
+
+                        // Notify the adapter to update the views
+                        notifyDataSetChanged();
+
+                        // Notify the listener
+                        listener.onItemClicked(position);
                     }
                 }
             });
