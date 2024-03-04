@@ -16,17 +16,22 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.insa.insaradar.EdtAnalyse.EdtAnalyse;
+import fr.insa.insaradar.EdtAnalyse.Room;
+
 public class MainActivity extends AppCompatActivity implements RecyclerViewListener {
     private FirebaseAuth mAuth;
     private FirebaseUser user;
     ImageButton imageButton;
     ArrayList<BuildingModel> buildings = new ArrayList<>();
     private RecyclerView buildingsRecyclerView;
+    private Room[] rooms;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        rooms = EdtAnalyse.initializeFile(this);
         mAuth=FirebaseAuth.getInstance(); //initialisation de l'instance de FirebaseAuth
         user = mAuth.getCurrentUser();
         imageButton = findViewById(R.id.imageButton);
@@ -39,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
         buildingsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
     void setupBuildingModels(){
-        String names[] = {"Batiment Archi", "Batiment B", "Batiment C", "Batiment D", "Batiment E"};
+        String names[] = {"Amphithéâtre","Batiment C","Batiment E",rooms[23].getId()};
         for (String name : names) {
             buildings.add(new BuildingModel(name));
         }

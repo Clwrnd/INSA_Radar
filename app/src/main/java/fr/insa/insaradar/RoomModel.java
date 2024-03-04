@@ -16,6 +16,13 @@ public class RoomModel {
         this.name = name;
         this.visible = false;
     }
+
+    public RoomModel(String name, String availability) {
+        this.name = name;
+        this.availability = availability;
+        this.visible = false;
+    }
+
     public void collapse() {
         this.visible = false;
     }
