@@ -29,7 +29,7 @@ import java.util.List;
  * @author cidmo
  */
 public class GeneralMethod {
-    public static File getSourceFile(String sourceUrl, String finalDir, Context context) throws IOException {
+    public static File getSourceFile(String sourceUrl, Context context) throws IOException {
         new Thread(new Runnable() {
             public void run() {
                 try (BufferedInputStream bis = new BufferedInputStream(new URL(sourceUrl).openStream()); FileOutputStream outFile = context.openFileOutput("edt.ics",Context.MODE_PRIVATE)) {
@@ -60,14 +60,27 @@ public class GeneralMethod {
                 while (ligne != null) {
                     if (ligne.equals("BEGIN:VEVENT")) {
                         ligne = lire.readLine();
+                        while(ligne==null){
+                            ligne=lire.readLine();
+                        }
                         while (!ligne.equals("END:VEVENT")) {
                             ligne = lire.readLine();
-                            String[] beacon = ligne.split(":");
+                            while(ligne==null){
+                                ligne= lire.readLine();
+                            }
+                                String[] beacon = ligne.split(":");
+
                             if (beacon[0].equals("LOCATION")) {
                                 String ligneBreakCase = lire.readLine();
+                                while(ligneBreakCase==null){
+                                    ligneBreakCase= lire.readLine();
+                                }
                                 while (ligneBreakCase.startsWith(" ")) {
                                     beacon[1] = beacon[1] + ligneBreakCase.substring(1);
                                     ligneBreakCase = lire.readLine();
+                                    while(ligneBreakCase==null){
+                                        ligneBreakCase= lire.readLine();
+                                    }
                                 }
                                 String[] multipleRoomCase = beacon[1].split(",");
                                 for (Room room : rooms) {
@@ -88,7 +101,7 @@ public class GeneralMethod {
                 setAvaibilitysLenght(rooms);
             }
         } catch (Exception ex) {
-            throw ex;
+            ex.printStackTrace();
         }
     }
 
@@ -102,9 +115,17 @@ public class GeneralMethod {
                         LocalDateTime begining = null;
                         LocalDateTime ending = null;
                         ligne = lire.readLine();
+                        while(ligne==null){
+                            ligne=lire.readLine();
+                        }
                         while (!ligne.equals("END:VEVENT")) {
                             ligne = lire.readLine();
-                            String[] beacon0 = ligne.split(":");
+                            while(ligne==null){
+                                ligne=lire.readLine();
+                            }
+                                String[] beacon0 = ligne.split(":");
+
+
                             if (beacon0[0].equals("DTSTART")) {
                                 begining = LocalDateTime.parse(to_BASIC_ISO_DATE_TIME(beacon0[1]), myFormatObj);
                             }
@@ -113,9 +134,15 @@ public class GeneralMethod {
                             }
                             if (beacon0[0].equals("LOCATION")) {
                                 String ligneBreakCase = lire.readLine();
+                                while(ligneBreakCase==null){
+                                    ligneBreakCase= lire.readLine();
+                                }
                                 while (ligneBreakCase.startsWith(" ")) {
                                     beacon0[1] = beacon0[1] + ligneBreakCase.substring(1);
                                     ligneBreakCase = lire.readLine();
+                                    while(ligneBreakCase==null){
+                                        ligneBreakCase= lire.readLine();
+                                    }
                                 }
                                 String[] multipleRoomCase = beacon0[1].split(",");
                                 for (Room room : rooms) {
@@ -130,6 +157,7 @@ public class GeneralMethod {
                                 }
                             }
 
+
                         }
                     }
 
@@ -137,7 +165,7 @@ public class GeneralMethod {
                 }
             }
         } catch (Exception ex) {
-            throw ex;
+            ex.printStackTrace();
         }
     }
 
@@ -166,11 +194,14 @@ public class GeneralMethod {
     public static ArrayList<Event> inDay(LocalDateTime dateTime, Room room) {
         ArrayList<Event> toReturn = new ArrayList<>();
         LocalDate date = dateTime.toLocalDate();
-        for (Event ev : room.getAvailability()) {
-            if (ev.getStartPoint().toLocalDate().equals(date) && ev.getStartPoint().isAfter(dateTime)) {
-                toReturn.add(ev);
-            }
+            for (Event ev : room.getAvailability()) {
+                    if (ev.getStartPoint().toLocalDate().equals(date) && ev.getStartPoint().isAfter(dateTime)) {
+                        toReturn.add(ev);
+                    }
         }
+
+
+
         return toReturn;
     }
 

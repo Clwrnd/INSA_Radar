@@ -4,6 +4,8 @@
  */
 package fr.insa.insaradar.EdtAnalyse;
 
+import fr.insa.insaradar.RoomModel;
+
 /**
  *
  * @author cidmo
@@ -113,4 +115,48 @@ public class GenerateAllRoom {
         
         return rooms;
     }
+    public static Room[] getAmphi(Room[] allRooms){
+        Room[] rooms =new Room[7] ;
+        int i=0;
+        for (Room room: allRooms){
+            if(room.isInBat("amphi")){
+                rooms[i]=room;
+                i++;
+            }
+        }
+        return rooms;
+    }
+
+    public static Room[] getC(Room[] allRooms){
+        Room[] rooms =new Room[26] ;
+        int i=0;
+        for (Room room: allRooms){
+            if(room.isInBat("C")){
+                rooms[i]=room;
+                i++;
+            }
+        }
+        return rooms;
+    }
+    public static Room[] getE(Room[] allRooms){
+        Room[] rooms =new Room[12];
+        int i=0;
+        for (Room room: allRooms){
+            if(room.isInBat("E")){
+                rooms[i]=room;
+                i++;
+            }
+        }
+        return rooms;
+    }
+
+    public static Room[] SpecificRoom(String bat, Room[] rooms){
+        switch (bat){
+            case "Amphithéâtre": return getAmphi(rooms);
+            case "Batiment C": return getC(rooms);
+            case "Batiment E": return  getE(rooms);
+            default: return  rooms;
+        }
+    }
+
 }

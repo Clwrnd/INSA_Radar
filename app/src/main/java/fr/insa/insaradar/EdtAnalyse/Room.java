@@ -12,10 +12,10 @@ package fr.insa.insaradar.EdtAnalyse;
     -Bâtiment E    
 */  
 public class Room {
-    private String id;
+    private final String id;
     private int nbEvent;
     private Event[] availability;
-    private String batiment;
+    private final String batiment;
 
     public Room(String id,String bat) {
         this.nbEvent=0;
@@ -72,6 +72,10 @@ public class Room {
 
     public String getBatiment() {
         return batiment;
+    }
+
+    public boolean isInBat(String bat){
+        return this.getBatiment().equals(bat);
     }
 
 }

@@ -17,7 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.insa.insaradar.EdtAnalyse.EdtAnalyse;
+import fr.insa.insaradar.EdtAnalyse.GenerateAllRoom;
 import fr.insa.insaradar.EdtAnalyse.Room;
+import fr.insa.insaradar.EdtAnalyse.SingletonRoomObject;
 
 public class MainActivity extends AppCompatActivity implements RecyclerViewListener {
     private FirebaseAuth mAuth;
@@ -44,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
         buildingsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
     void setupBuildingModels(){
-        String names[] = {"Amphithéâtre","Batiment C","Batiment E",rooms[23].getId()};
+        String names[] = {"Amphithéâtre","Batiment C","Batiment E"};
         for (String name : names) {
             buildings.add(new BuildingModel(name));
         }
@@ -78,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
     @Override
     public void onItemClicked(int position) {
         //switch to the details activity
+        SingletonRoomObject.getInstance().setRooms(GenerateAllRoom.SpecificRoom(buildings.get(position).getName(),rooms));
         Intent intent = new Intent(MainActivity.this, Details.class);
         startActivity(intent);
     }

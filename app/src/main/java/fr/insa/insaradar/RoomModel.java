@@ -19,7 +19,7 @@ public class RoomModel {
 
     public RoomModel(String name, String availability) {
         this.name = name;
-        this.availability = availability;
+        this.availability = "Disponible jusqu'à: "+availability;
         this.visible = false;
     }
 
