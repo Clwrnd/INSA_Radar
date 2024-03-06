@@ -9,25 +9,44 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import fr.insa.insaradar.R;
 
 
 /**
- *
  * @author cidmo
  */
 public class EdtAnalyse {
-    
-    public static Room[]  initializeFile(Context context) {
+
+    public static Room[] initializeFile(Context context) {
         DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         String sourceUrl = "https://apps-int.insa-strasbourg.fr/ade/export.php?projectId=30&resources=5982,5987,5988,5989,5990,5992";
+
         File edt = null;
-        try {
-            edt = GeneralMethod.getSourceFile(sourceUrl,context);
-        } catch (IOException ex) {
-            System.out.println("Erreur");
+        Future<File> file = null;
+        ExecutorService ex1 = Executors.newSingleThreadExecutor();
+
+        if (!GeneralMethod.idAlreadyDl(context)) {
+            try {
+                Callable<File> cF = GeneralMethod.getSourceFile2(sourceUrl, context);
+                file = ex1.submit(cF);
+                edt = file.get();
+            } catch (IOException | InterruptedException | ExecutionException ex) {
+            }
+        } else {
+            edt = new File(context.getFilesDir(), "edt.ics");
         }
+       if(file!=null){
+           while (!file.isDone()) {
+        }
+       }
 
         Room[] rooms = GenerateAllRoom.getAll();
         try {
@@ -40,7 +59,7 @@ public class EdtAnalyse {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    return rooms;
+        return rooms;
     }
-    
+
 }

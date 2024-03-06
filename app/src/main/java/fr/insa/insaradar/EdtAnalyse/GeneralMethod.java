@@ -23,16 +23,18 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  *
  * @author cidmo
  */
 public class GeneralMethod {
-    public static File getSourceFile(String sourceUrl, Context context) throws IOException {
-       new Thread(new Runnable() {
-           public void run() {
-                try (BufferedInputStream bis = new BufferedInputStream(new URL(sourceUrl).openStream()); FileOutputStream outFile = context.openFileOutput("edt.ics",Context.MODE_PRIVATE)) {
+    public static Callable<File> getSourceFile2(String sourceUrl, Context context) throws IOException {
+       return new Callable<File>() {
+            @Override
+            public File call() throws Exception {
+                try (BufferedInputStream bis = new BufferedInputStream(new URL(sourceUrl).openStream()); FileOutputStream outFile = context.openFileOutput("edt.ics", Context.MODE_PRIVATE)) {
                     byte data[] = new byte[1024];
                     int byteContent;
                     while ((byteContent = bis.read(data, 0, 1024)) != -1) {
@@ -41,11 +43,13 @@ public class GeneralMethod {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
+                File file = new File(context.getFilesDir(), "edt.ics");
+                System.out.println("finis");
+                return file;
             }
-        }).start();
-        File file = new File (context.getFilesDir(),"edt.ics");
-        return file;
-    }
+        };
+        };
 
     public static String to_BASIC_ISO_DATE_TIME(String raw) {
         String replace = raw.replace("T", "");
@@ -60,26 +64,26 @@ public class GeneralMethod {
                 while (ligne != null) {
                     if (ligne.equals("BEGIN:VEVENT")) {
                         ligne = lire.readLine();
-                        while(ligne==null){
-                            ligne=lire.readLine();
+                        while (ligne == null) {
+                            ligne = lire.readLine();
                         }
                         while (!ligne.equals("END:VEVENT")) {
                             ligne = lire.readLine();
-                            while(ligne==null){
-                                ligne= lire.readLine();
+                            while (ligne == null) {
+                                ligne = lire.readLine();
                             }
-                                String[] beacon = ligne.split(":");
+                            String[] beacon = ligne.split(":");
 
                             if (beacon[0].equals("LOCATION")) {
                                 String ligneBreakCase = lire.readLine();
-                                while(ligneBreakCase==null){
-                                    ligneBreakCase= lire.readLine();
+                                while (ligneBreakCase == null) {
+                                    ligneBreakCase = lire.readLine();
                                 }
                                 while (ligneBreakCase.startsWith(" ")) {
                                     beacon[1] = beacon[1] + ligneBreakCase.substring(1);
                                     ligneBreakCase = lire.readLine();
-                                    while(ligneBreakCase==null){
-                                        ligneBreakCase= lire.readLine();
+                                    while (ligneBreakCase == null) {
+                                        ligneBreakCase = lire.readLine();
                                     }
                                 }
                                 String[] multipleRoomCase = beacon[1].split(",");
@@ -115,15 +119,15 @@ public class GeneralMethod {
                         LocalDateTime begining = null;
                         LocalDateTime ending = null;
                         ligne = lire.readLine();
-                        while(ligne==null){
-                            ligne=lire.readLine();
+                        while (ligne == null) {
+                            ligne = lire.readLine();
                         }
                         while (!ligne.equals("END:VEVENT")) {
                             ligne = lire.readLine();
-                            while(ligne==null){
-                                ligne=lire.readLine();
+                            while (ligne == null) {
+                                ligne = lire.readLine();
                             }
-                                String[] beacon0 = ligne.split(":");
+                            String[] beacon0 = ligne.split(":");
 
 
                             if (beacon0[0].equals("DTSTART")) {
@@ -134,14 +138,14 @@ public class GeneralMethod {
                             }
                             if (beacon0[0].equals("LOCATION")) {
                                 String ligneBreakCase = lire.readLine();
-                                while(ligneBreakCase==null){
-                                    ligneBreakCase= lire.readLine();
+                                while (ligneBreakCase == null) {
+                                    ligneBreakCase = lire.readLine();
                                 }
                                 while (ligneBreakCase.startsWith(" ")) {
                                     beacon0[1] = beacon0[1] + ligneBreakCase.substring(1);
                                     ligneBreakCase = lire.readLine();
-                                    while(ligneBreakCase==null){
-                                        ligneBreakCase= lire.readLine();
+                                    while (ligneBreakCase == null) {
+                                        ligneBreakCase = lire.readLine();
                                     }
                                 }
                                 String[] multipleRoomCase = beacon0[1].split(",");
@@ -194,12 +198,11 @@ public class GeneralMethod {
     public static ArrayList<Event> inDay(LocalDateTime dateTime, Room room) {
         ArrayList<Event> toReturn = new ArrayList<>();
         LocalDate date = dateTime.toLocalDate();
-            for (Event ev : room.getAvailability()) {
-                    if (ev.getStartPoint().toLocalDate().equals(date) && ev.getStartPoint().isAfter(dateTime)) {
-                        toReturn.add(ev);
-                    }
+        for (Event ev : room.getAvailability()) {
+            if (ev.getStartPoint().toLocalDate().equals(date) && ev.getStartPoint().isAfter(dateTime)) {
+                toReturn.add(ev);
+            }
         }
-
 
 
         return toReturn;
@@ -219,8 +222,8 @@ public class GeneralMethod {
                 }
                 fr[i] = new FreeRoom(room, min);
                 i++;
-            } else{
-                fr[i] = new FreeRoom(room,null);
+            } else {
+                fr[i] = new FreeRoom(room, null);
                 i++;
             }
 
@@ -228,4 +231,17 @@ public class GeneralMethod {
         return fr;
     }
 
+    public static boolean idAlreadyDl(Context context) {
+        File file = new File(context.getFilesDir(), "edt.ics");
+        if (!file.exists()) {
+            return false;
+        } else {
+            try (BufferedReader lire = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
+                return lire.readLine() != null;
+            } catch (Exception e) {
+                System.out.println("Erreur");
+                return false;
+            }
+        }
+    }
 }
