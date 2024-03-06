@@ -1,9 +1,11 @@
 package fr.insa.insaradar;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,7 +35,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        rooms = EdtAnalyse.initializeFile(this);
         mAuth=FirebaseAuth.getInstance(); //initialisation de l'instance de FirebaseAuth
         user = mAuth.getCurrentUser();
         imageButton = findViewById(R.id.imageButton);
@@ -44,6 +45,23 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
         BuildingsAdapter adapter = new BuildingsAdapter(buildings, this, this);
         buildingsRecyclerView.setAdapter(adapter);
         buildingsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        ProgressDialog mProgressDialog = ProgressDialog.show(this, "Veuillez patienter","Chargement des données", true);
+        new Thread() {
+            @Override
+            public void run() {
+                rooms = EdtAnalyse.initializeFile(MainActivity.this);
+                try {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mProgressDialog.dismiss();
+                        }
+                    });
+                } catch (final Exception ex) {
+                }
+            }
+        }.start();
     }
     void setupBuildingModels(){
         String names[] = {"Amphithéâtre","Batiment C","Batiment E"};

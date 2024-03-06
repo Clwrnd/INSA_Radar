@@ -31,7 +31,7 @@ import java.util.List;
 public class GeneralMethod {
     public static File getSourceFile(String sourceUrl, Context context) throws IOException {
         new Thread(new Runnable() {
-            public void run() {
+           public void run() {
                 try (BufferedInputStream bis = new BufferedInputStream(new URL(sourceUrl).openStream()); FileOutputStream outFile = context.openFileOutput("edt.ics",Context.MODE_PRIVATE)) {
                     byte data[] = new byte[1024];
                     int byteContent;

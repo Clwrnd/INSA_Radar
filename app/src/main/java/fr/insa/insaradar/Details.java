@@ -1,12 +1,13 @@
 package fr.insa.insaradar;
 
+import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.ImageButton;
-import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -33,10 +35,10 @@ public class Details extends AppCompatActivity implements RecyclerViewListener {
     private RecyclerView roomsRecyclerView;
     private Button timePickerButton;
     private ImageButton imageButton;
-    private Spinner stageSpinner;
+    private Button datePickerButton;
     private FirebaseAuth mAuth;
     private FirebaseUser user;
-    int hour, minute;
+    int hour, minute,year,month,day;
     ArrayList<RoomModel> rooms = new ArrayList<>();
 
     @Override
@@ -49,7 +51,7 @@ public class Details extends AppCompatActivity implements RecyclerViewListener {
         imageButton.setOnClickListener(this::handleAccountManagement);
 
         roomsRecyclerView = findViewById(R.id.roomsRecyclerView);
-        timePickerButton = findViewById(R.id.datePickerButton);
+        timePickerButton = findViewById(R.id.timePickerButton);
         timePickerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,7 +59,22 @@ public class Details extends AppCompatActivity implements RecyclerViewListener {
             }
         });
 
-        stageSpinner = findViewById(R.id.stageSpinner);
+        datePickerButton = findViewById(R.id.datePickerButton);
+        datePickerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popDatePicker(v);
+            }
+        });
+        hour=LocalTime.now().getHour();
+        minute=LocalTime.now().getMinute();
+        month=LocalDate.now().getMonthValue();
+        day= LocalDate.now().getDayOfMonth();
+        year = LocalDate.now().getYear();
+
+
+        timePickerButton.setText(String.format(Locale.getDefault(), "%02d:%02d",hour,minute ));
+        datePickerButton.setText(String.format(Locale.getDefault(), "%02d/%02d",day, month));
 
         setupRoomModels(SingletonRoomObject.getInstance().getRooms(),LocalDate.now(),LocalTime.now());
         roomsRecyclerView = findViewById(R.id.roomsRecyclerView);
@@ -100,9 +117,9 @@ public class Details extends AppCompatActivity implements RecyclerViewListener {
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 hour = hourOfDay;
                 Details.this.minute = minute;
-                timePickerButton.setText(String.format(Locale.getDefault(), "%02d:%02d", hour, minute));
+                timePickerButton.setText(String.format(Locale.getDefault(), "%02d:%02d", hour, Details.this.minute));
                 rooms.clear();
-                setupRoomModels(SingletonRoomObject.getInstance().getRooms(),LocalDate.of(2024,3,13),LocalTime.of(hour,minute));
+                setupRoomModels(SingletonRoomObject.getInstance().getRooms(),LocalDate.of(year,month,day),LocalTime.of(hour,Details.this.minute));
                 roomsRecyclerView.getAdapter().notifyDataSetChanged();
             }
         };
@@ -110,6 +127,25 @@ public class Details extends AppCompatActivity implements RecyclerViewListener {
         timePickerDialog.setTitle("Sélectionner l'heure");
         timePickerDialog.show();
     }
+
+    public void popDatePicker(View view) {
+        DatePickerDialog.OnDateSetListener onDateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                Details.this.year = year;
+                Details.this.month = month+1;
+                Details.this.day = dayOfMonth;
+                datePickerButton.setText(String.format(Locale.getDefault(), "%02d/%02d", Details.this.day,Details.this.month));
+                rooms.clear();
+                setupRoomModels(SingletonRoomObject.getInstance().getRooms(),LocalDate.of(Details.this.year,Details.this.month,day),LocalTime.of(hour,minute));
+                roomsRecyclerView.getAdapter().notifyDataSetChanged();
+            }
+        };
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this,onDateSetListener,year,month,day);
+        datePickerDialog.setTitle("Sélectionner la date");
+        datePickerDialog.show();
+    }
+
 
     public void handleAccountManagement(View view) {
         mAuth = FirebaseAuth.getInstance();

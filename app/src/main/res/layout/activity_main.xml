@@ -39,8 +39,4 @@
         android:layout_marginTop="80dp"
         android:scrollbars="vertical"
         app:layout_constraintTop_toTopOf="parent" />
-
-
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
