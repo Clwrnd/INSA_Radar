@@ -2,12 +2,16 @@ package fr.insa.insaradar;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
     ArrayList<BuildingModel> buildings = new ArrayList<>();
     private RecyclerView buildingsRecyclerView;
     private Room[] rooms;
+    private boolean isInternetConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,24 +50,34 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
         BuildingsAdapter adapter = new BuildingsAdapter(buildings, this, this);
         buildingsRecyclerView.setAdapter(adapter);
         buildingsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        isNetworkAvailable();
 
         ProgressDialog mProgressDialog = ProgressDialog.show(this, "Veuillez patienter","Chargement des données", true);
         new Thread() {
             @Override
             public void run() {
-                rooms = EdtAnalyse.initializeFile(MainActivity.this);
+                rooms = EdtAnalyse.initializeFile(MainActivity.this,isInternetConnection);
                 try {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             mProgressDialog.dismiss();
+                            if (rooms==null){
+                                Toast .makeText(MainActivity.this,"No Internet Connection\nNo Existing Version", Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast .makeText(MainActivity.this,"Data succesfully received", Toast.LENGTH_SHORT).show();
+
+                            }
                         }
                     });
                 } catch (final Exception ex) {
                 }
             }
         }.start();
+
+
     }
+
     void setupBuildingModels(){
         String names[] = {"Amphithéâtre","Batiment C","Batiment E"};
         for (String name : names) {
@@ -98,9 +113,32 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
     @Override
     public void onItemClicked(int position) {
         //switch to the details activity
-        SingletonRoomObject.getInstance().setRooms(GenerateAllRoom.SpecificRoom(buildings.get(position).getName(),rooms));
-        Intent intent = new Intent(MainActivity.this, Details.class);
-        startActivity(intent);
+        if(rooms!=null){
+            SingletonRoomObject.getInstance().setRooms(GenerateAllRoom.SpecificRoom(buildings.get(position).getName(),rooms));
+            Intent intent = new Intent(MainActivity.this, Details.class);
+            startActivity(intent);
+        } else {
+            Toast .makeText(MainActivity.this,"No Existing Version. Try to refresh the app with Internet Connection", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    public void isNetworkAvailable() {
+        NetworkRequest networkRequest = new NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+                .build();
+        ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(@NonNull Network network) {
+                super.onAvailable(network);
+                isInternetConnection = true;
+            }
+        };
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) getSystemService(ConnectivityManager.class);
+        connectivityManager.requestNetwork(networkRequest, networkCallback);
     }
 
 }

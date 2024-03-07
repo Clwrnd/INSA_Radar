@@ -4,6 +4,7 @@
 package fr.insa.insaradar.EdtAnalyse;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +26,7 @@ import fr.insa.insaradar.R;
  */
 public class EdtAnalyse {
 
-    public static Room[] initializeFile(Context context) {
+    public static Room[] initializeFile(Context context,boolean isInternetConnection) {
         DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         String sourceUrl = "https://apps-int.insa-strasbourg.fr/ade/export.php?projectId=30&resources=5982,5987,5988,5989,5990,5992";
 
@@ -33,7 +34,7 @@ public class EdtAnalyse {
         Future<File> file = null;
         ExecutorService ex1 = Executors.newSingleThreadExecutor();
 
-        if (!GeneralMethod.idAlreadyDl(context)) {
+        if (!GeneralMethod.idAlreadyDl(context)&&isInternetConnection) {
             try {
                 Callable<File> cF = GeneralMethod.getSourceFile2(sourceUrl, context);
                 file = ex1.submit(cF);
@@ -43,23 +44,28 @@ public class EdtAnalyse {
         } else {
             edt = new File(context.getFilesDir(), "edt.ics");
         }
+
        if(file!=null){
            while (!file.isDone()) {
         }
        }
 
         Room[] rooms = GenerateAllRoom.getAll();
-        try {
-            GeneralMethod.countEachEvent(edt, rooms);
-            GeneralMethod.assignEvent(edt, rooms);
-        } catch (UnsupportedEncodingException ex) {
-            System.out.println("Erreur");
-        } catch (IOException ex) {
-            System.out.println("Erreur");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return rooms;
+       if (edt.exists()) {
+           try {
+               GeneralMethod.countEachEvent(edt, rooms);
+               GeneralMethod.assignEvent(edt, rooms);
+           } catch (UnsupportedEncodingException ex) {
+               System.out.println("Erreur");
+           } catch (IOException ex) {
+               System.out.println("Erreur");
+           } catch (Exception ex) {
+               ex.printStackTrace();
+           }
+           return rooms;
+       }else {
+           return null;
+       }
     }
 
 }
