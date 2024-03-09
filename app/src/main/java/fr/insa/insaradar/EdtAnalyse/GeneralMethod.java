@@ -5,6 +5,7 @@
 package fr.insa.insaradar.EdtAnalyse;
 
 import android.content.Context;
+import android.widget.TextView;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -23,6 +24,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Callable;
 
 /**
@@ -183,7 +185,7 @@ public class GeneralMethod {
         List<Room> availableRooms = new ArrayList<>(Arrays.asList(rooms));
         for (Room room : rooms) {
             for (Event ev : room.getAvailability()) {
-                if (toDetermine.isAfter(ev.getStartPoint()) && toDetermine.isBefore(ev.getEndPoint())) {
+                if ((toDetermine.isAfter(ev.getStartPoint())||toDetermine.isEqual(ev.getStartPoint())) && toDetermine.isBefore(ev.getEndPoint())) {
                     availableRooms.remove(room);
                     break;
                 }
@@ -233,11 +235,22 @@ public class GeneralMethod {
 
     public static boolean idAlreadyDl(Context context) {
         File file = new File(context.getFilesDir(), "edt.ics");
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         if (!file.exists()) {
             return false;
         } else {
             try (BufferedReader lire = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
-                return lire.readLine() != null;
+                if(lire.readLine()!=null){
+                    String ligne =lire.readLine();
+                    while(!ligne.startsWith("DTSTAMP")){
+                        ligne = lire.readLine();
+                    }
+                    LocalDateTime lastStamp = LocalDateTime.parse(to_BASIC_ISO_DATE_TIME(ligne.split(":")[1]),myFormatObj);
+                    SingletonRoomObject.getInstance().setLastStamp(lastStamp.toLocalDate().toString());
+                    return lastStamp.toLocalDate().isEqual(LocalDate.now());
+                } else {
+                    return false;
+                }
             } catch (Exception e) {
                 System.out.println("Erreur");
                 return false;

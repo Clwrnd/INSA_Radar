@@ -4,6 +4,14 @@ public class SingletonRoomObject {
     private static SingletonRoomObject instance;
     private Room[] rooms;
 
+    public String getLastStamp() {
+        return lastStamp;
+    }
+    public void setLastStamp(String lastStamp) {
+        this.lastStamp = lastStamp;
+    }
+    private String lastStamp;
+
     public Room[] getRooms() {
         return rooms;
     }

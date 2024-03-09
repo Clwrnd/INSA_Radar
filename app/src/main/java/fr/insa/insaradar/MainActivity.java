@@ -9,6 +9,7 @@ import android.net.NetworkRequest;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,6 +22,12 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import fr.insa.insaradar.EdtAnalyse.EdtAnalyse;
 import fr.insa.insaradar.EdtAnalyse.GenerateAllRoom;
@@ -31,11 +38,12 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
     private FirebaseAuth mAuth;
     private FirebaseUser user;
     ImageButton imageButton;
+    TextView lastStamp;
     ArrayList<BuildingModel> buildings = new ArrayList<>();
     private RecyclerView buildingsRecyclerView;
     private Room[] rooms;
     private boolean isInternetConnection;
-
+    private boolean isBug;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
         user = mAuth.getCurrentUser();
         imageButton = findViewById(R.id.imageButton);
         imageButton.setOnClickListener(this::handleAccountManagement);
+        lastStamp = findViewById(R.id.lastStamp);
 
         setupBuildingModels();
         buildingsRecyclerView = findViewById(R.id.buildingsRecyclerView);
@@ -56,18 +65,37 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
         new Thread() {
             @Override
             public void run() {
-                rooms = EdtAnalyse.initializeFile(MainActivity.this,isInternetConnection);
+                isBug =false;
+                ExecutorService exe = Executors.newSingleThreadExecutor();
+                Future<Room[]> rm = exe.submit(EdtAnalyse.initializeFile2(MainActivity.this,isInternetConnection));
+                try {
+                    rooms = rm.get(30, TimeUnit.SECONDS);
+                } catch (ExecutionException | InterruptedException e) {
+                    isBug=true;
+                    rooms=null;
+                } catch (TimeoutException e) {
+                    isBug=true;
+                    rooms=null;
+                }finally {
+                    exe.shutdownNow();
+                }
+                //  rooms = EdtAnalyse.initializeFile(MainActivity.this,isInternetConnection);
                 try {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             mProgressDialog.dismiss();
                             if (rooms==null){
-                                Toast .makeText(MainActivity.this,"No Internet Connection\nNo Existing Version", Toast.LENGTH_LONG).show();
+                                if(isBug){
+                                    Toast.makeText(MainActivity.this,"Error while loading files, please try to refresh the app",Toast.LENGTH_LONG).show();
+                                }else {
+                                    Toast .makeText(MainActivity.this,"No Internet Connection\nNo Existing Version", Toast.LENGTH_LONG).show();
+                                }
                             } else {
                                 Toast .makeText(MainActivity.this,"Data succesfully received", Toast.LENGTH_SHORT).show();
 
                             }
+                            lastStamp.setText("Last Stamp: "+SingletonRoomObject.getInstance().getLastStamp());
                         }
                     });
                 } catch (final Exception ex) {
