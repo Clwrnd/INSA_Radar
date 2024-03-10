@@ -76,4 +76,50 @@ public class EdtAnalyse {
         }
     };
     }
+
+    public static Callable<Room[]> refreshFile(Context context) {
+        return new Callable<Room[]>() {
+            @Override
+            public Room[] call() {
+                DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+                String sourceUrl = "https://apps-int.insa-strasbourg.fr/ade/export.php?projectId=30&resources=5982,5987,5988,5989,5990,5992";
+
+                File edt = null;
+                Future<File> file = null;
+                ExecutorService ex1 = Executors.newSingleThreadExecutor();
+                    try {
+                        Callable<File> cF = GeneralMethod.getSourceFile2(sourceUrl, context);
+                        file = ex1.submit(cF);
+                        edt = file.get();
+                    } catch (IOException | InterruptedException | ExecutionException ex) {
+                    }
+
+                if(file!=null){
+                    while (!file.isDone()) {
+                    }
+                    SingletonRoomObject.getInstance().setLastStamp(LocalDate.now().toString());
+                }
+                Room[] rooms = GenerateAllRoom.getAll();
+                if (edt.exists()) {
+                    try {
+                        GeneralMethod.countEachEvent(edt, rooms);
+                        GeneralMethod.assignEvent(edt, rooms);
+                    } catch (UnsupportedEncodingException ex) {
+                        System.out.println("Erreur");
+                    } catch (IOException ex) {
+                        System.out.println("Erreur");
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                    return rooms;
+                }else {
+                    SingletonRoomObject.getInstance().setLastStamp("None");
+                    return null;
+                }
+            }
+        };
+    }
+
+
+
 }

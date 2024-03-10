@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
     private FirebaseAuth mAuth;
     private FirebaseUser user;
     ImageButton imageButton;
+    ImageButton refreshButton;
     TextView lastStamp;
     ArrayList<BuildingModel> buildings = new ArrayList<>();
     private RecyclerView buildingsRecyclerView;
@@ -52,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
         user = mAuth.getCurrentUser();
         imageButton = findViewById(R.id.imageButton);
         imageButton.setOnClickListener(this::handleAccountManagement);
+        refreshButton= findViewById(R.id.refreshBut);
+        refreshButton.setOnClickListener(this::refreshAction);
         lastStamp = findViewById(R.id.lastStamp);
 
         setupBuildingModels();
@@ -103,6 +106,51 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
             }
         }.start();
 
+
+    }
+
+    private void refreshAction(View view) {
+        isNetworkAvailable();
+        if(isInternetConnection) {
+            ProgressDialog mProgressDialog = ProgressDialog.show(this, "Veuillez patienter", "Chargement des données", true);
+            new Thread() {
+                @Override
+                public void run() {
+                    isBug = false;
+                    ExecutorService exe = Executors.newSingleThreadExecutor();
+                    Future<Room[]> rm = exe.submit(EdtAnalyse.initializeFile2(MainActivity.this, isInternetConnection));
+                    try {
+                        rooms = rm.get(30, TimeUnit.SECONDS);
+                    } catch (ExecutionException | InterruptedException e) {
+                        isBug = true;
+                        rooms = null;
+                    } catch (TimeoutException e) {
+                        isBug = true;
+                        rooms = null;
+                    } finally {
+                        exe.shutdownNow();
+                    }
+                    try {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mProgressDialog.dismiss();
+                                if (rooms == null && isBug) {
+                                    Toast.makeText(MainActivity.this, "Error while loading files, please try to refresh the app", Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(MainActivity.this, "Data succesfully received", Toast.LENGTH_SHORT).show();
+
+                                }
+                                lastStamp.setText("Last Stamp: " + SingletonRoomObject.getInstance().getLastStamp());
+                            }
+                        });
+                    } catch (final Exception ex) {
+                    }
+                }
+            }.start();
+        } else {
+            Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
+        }
 
     }
 
@@ -163,7 +211,22 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
                 super.onAvailable(network);
                 isInternetConnection = true;
             }
-        };
+
+            @Override
+            public void onUnavailable() {
+                super.onUnavailable();
+                isInternetConnection=false;
+            }
+
+            @Override
+            public void onLost(@NonNull Network network) {
+                super.onLost(network);
+                isInternetConnection=false;
+
+            }
+        }
+
+        ;
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) getSystemService(ConnectivityManager.class);
         connectivityManager.requestNetwork(networkRequest, networkCallback);
