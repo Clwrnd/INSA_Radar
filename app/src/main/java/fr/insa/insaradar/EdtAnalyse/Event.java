@@ -9,13 +9,13 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 
 /**
- *
  * @author cidmo
+ * Model of an effective course
  */
 public class Event {
 
-    private LocalDateTime startPoint;
-    private LocalDateTime endPoint;
+    private final LocalDateTime startPoint;
+    private final LocalDateTime endPoint;
 
     public Event(LocalDateTime startPoint, LocalDateTime endPoint) {
         this.startPoint = startPoint;
@@ -23,14 +23,14 @@ public class Event {
     }
 
     /**
-     * @return the startPoint
+     * @return the startPoint at the right Timeline
      */
     public LocalDateTime getStartPoint() {
         return LocalDateTime.ofInstant(startPoint.toInstant(ZoneOffset.UTC), ZoneId.of("Europe/Paris"));
     }
 
     /**
-     * @return the endPoint
+     * @return the endPoint at the right Timeline
      */
     public LocalDateTime getEndPoint() {
         return LocalDateTime.ofInstant(endPoint.toInstant(ZoneOffset.UTC), ZoneId.of("Europe/Paris"));

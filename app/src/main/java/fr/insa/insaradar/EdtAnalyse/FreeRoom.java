@@ -5,12 +5,12 @@
 package fr.insa.insaradar.EdtAnalyse;
 
 /**
- *
  * @author cidmo
+ * Return the final form of what will be display on the UI.
  */
 public class FreeRoom {
-    private Room freeRoom;
-    private Event nextCousr;
+    private final Room freeRoom;
+    private final Event nextCousr;
 
     public FreeRoom(Room freeRoom, Event nextCousr) {
         this.freeRoom = freeRoom;
@@ -30,5 +30,5 @@ public class FreeRoom {
     public Event getNextCousr() {
         return nextCousr;
     }
-    
+
 }

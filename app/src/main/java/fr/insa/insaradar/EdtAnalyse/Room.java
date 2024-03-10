@@ -4,13 +4,8 @@ package fr.insa.insaradar.EdtAnalyse;
 /**
  *
  * @author cidmo
+ * Model of a room
  */
-
-/* Room à récupérer:
-    -Amphi
-    -Bâtiment C
-    -Bâtiment E    
-*/  
 public class Room {
     private final String id;
     private int nbEvent;
@@ -38,13 +33,6 @@ public class Room {
     }
 
     /**
-     * @param availability the availability to set
-     */
-    public void setAvailability(Event[] availability) {
-        this.availability = availability;
-    }
-
-    /**
      * @return the id
      */
     public String getId() {
@@ -58,13 +46,6 @@ public class Room {
         return nbEvent;
     }
 
-    /**
-     * @param nbEvent the nbEvent to set
-     */
-    public void setNbEvent(int nbEvent) {
-        this.nbEvent = nbEvent;
-    }
-    
     public void setAvaibilityLenght(){
         this.availability = new Event[this.nbEvent];
     }

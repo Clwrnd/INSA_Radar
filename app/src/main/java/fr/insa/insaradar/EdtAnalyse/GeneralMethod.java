@@ -5,18 +5,16 @@
 package fr.insa.insaradar.EdtAnalyse;
 
 import android.content.Context;
-import android.widget.TextView;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -24,154 +22,136 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.Callable;
 
 /**
- *
  * @author cidmo
+ * All methods useful for the file treatment and analyse.
  */
 public class GeneralMethod {
-    public static Callable<File> getSourceFile2(String sourceUrl, Context context) throws IOException {
-       return new Callable<File>() {
-            @Override
-            public File call() throws Exception {
-                try (BufferedInputStream bis = new BufferedInputStream(new URL(sourceUrl).openStream()); FileOutputStream outFile = context.openFileOutput("edt.ics", Context.MODE_PRIVATE)) {
-                    byte data[] = new byte[1024];
-                    int byteContent;
-                    while ((byteContent = bis.read(data, 0, 1024)) != -1) {
-                        outFile.write(data, 0, byteContent);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+    public static Callable<File> getSourceFile2(String sourceUrl, Context context) {
+        return () -> {
+            try (BufferedInputStream bis = new BufferedInputStream(new URL(sourceUrl).openStream()); FileOutputStream outFile = context.openFileOutput("edt.ics", Context.MODE_PRIVATE)) {
+                byte[] data = new byte[1024];
+                int byteContent;
+                while ((byteContent = bis.read(data, 0, 1024)) != -1) {
+                    outFile.write(data, 0, byteContent);
                 }
-
-                File file = new File(context.getFilesDir(), "edt.ics");
-                System.out.println("finis");
-                return file;
             }
+            return new File(context.getFilesDir(), "edt.ics");
         };
-        };
+    }
 
     public static String to_BASIC_ISO_DATE_TIME(String raw) {
         String replace = raw.replace("T", "");
-        String replace1 = replace.replace("Z", "");
-        return replace1;
+        return replace.replace("Z", "");
     }
 
-    public static void countEachEvent(File toCount, Room... rooms) throws FileNotFoundException, UnsupportedEncodingException, IOException {
-        try (BufferedReader lire = new BufferedReader(new InputStreamReader(new FileInputStream(toCount), "UTF-8"))) {
-            if (toCount != null) {
-                String ligne = lire.readLine();
-                while (ligne != null) {
-                    if (ligne.equals("BEGIN:VEVENT")) {
+    public static void countEachEvent(File toCount, Room... rooms) throws IOException {
+        try (BufferedReader lire = new BufferedReader(new InputStreamReader(Files.newInputStream(toCount.toPath()), StandardCharsets.UTF_8))) {
+            String ligne = lire.readLine();
+            while (ligne != null) {
+                if (ligne.equals("BEGIN:VEVENT")) {
+                    ligne = lire.readLine();
+                    while (ligne == null) {
+                        ligne = lire.readLine();
+                    }
+                    while (!ligne.equals("END:VEVENT")) {
                         ligne = lire.readLine();
                         while (ligne == null) {
                             ligne = lire.readLine();
                         }
-                        while (!ligne.equals("END:VEVENT")) {
-                            ligne = lire.readLine();
-                            while (ligne == null) {
-                                ligne = lire.readLine();
-                            }
-                            String[] beacon = ligne.split(":");
+                        String[] beacon = ligne.split(":");
 
-                            if (beacon[0].equals("LOCATION")) {
-                                String ligneBreakCase = lire.readLine();
+                        if (beacon[0].equals("LOCATION")) {
+                            String ligneBreakCase = lire.readLine();
+                            while (ligneBreakCase == null) {
+                                ligneBreakCase = lire.readLine();
+                            }
+                            while (ligneBreakCase.startsWith(" ")) {
+                                beacon[1] = beacon[1] + ligneBreakCase.substring(1);
+                                ligneBreakCase = lire.readLine();
                                 while (ligneBreakCase == null) {
                                     ligneBreakCase = lire.readLine();
                                 }
-                                while (ligneBreakCase.startsWith(" ")) {
-                                    beacon[1] = beacon[1] + ligneBreakCase.substring(1);
-                                    ligneBreakCase = lire.readLine();
-                                    while (ligneBreakCase == null) {
-                                        ligneBreakCase = lire.readLine();
-                                    }
-                                }
-                                String[] multipleRoomCase = beacon[1].split(",");
-                                for (Room room : rooms) {
-                                    for (String rString : multipleRoomCase) {
-                                        if (rString.equals(room.getId()) || rString.equals(room.getId() + "\\")) {
-                                            room.incrementNbEvent();
-                                        }
-                                    }
-
-                                }
                             }
+                            String[] multipleRoomCase = beacon[1].split(",");
+                            for (Room room : rooms) {
+                                for (String rString : multipleRoomCase) {
+                                    if (rString.equals(room.getId()) || rString.equals(room.getId() + "\\")) {
+                                        room.incrementNbEvent();
+                                    }
+                                }
 
+                            }
                         }
-                    }
 
-                    ligne = lire.readLine();
+                    }
                 }
-                setAvaibilitysLenght(rooms);
+
+                ligne = lire.readLine();
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            setAvaibilitysLenght(rooms);
         }
     }
 
     public static void assignEvent(File edt, Room... rooms) throws Exception {
         DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        try (BufferedReader lire = new BufferedReader(new InputStreamReader(new FileInputStream(edt), "UTF-8"))) {
-            if (edt != null) {
-                String ligne = lire.readLine();
-                while (ligne != null) {
-                    if (ligne.equals("BEGIN:VEVENT")) {
-                        LocalDateTime begining = null;
-                        LocalDateTime ending = null;
+        try (BufferedReader lire = new BufferedReader(new InputStreamReader(Files.newInputStream(edt.toPath()), StandardCharsets.UTF_8))) {
+            String ligne = lire.readLine();
+            while (ligne != null) {
+                if (ligne.equals("BEGIN:VEVENT")) {
+                    LocalDateTime begining = null;
+                    LocalDateTime ending = null;
+                    ligne = lire.readLine();
+                    while (ligne == null) {
+                        ligne = lire.readLine();
+                    }
+                    while (!ligne.equals("END:VEVENT")) {
                         ligne = lire.readLine();
                         while (ligne == null) {
                             ligne = lire.readLine();
                         }
-                        while (!ligne.equals("END:VEVENT")) {
-                            ligne = lire.readLine();
-                            while (ligne == null) {
-                                ligne = lire.readLine();
-                            }
-                            String[] beacon0 = ligne.split(":");
+                        String[] beacon0 = ligne.split(":");
 
 
-                            if (beacon0[0].equals("DTSTART")) {
-                                begining = LocalDateTime.parse(to_BASIC_ISO_DATE_TIME(beacon0[1]), myFormatObj);
+                        if (beacon0[0].equals("DTSTART")) {
+                            begining = LocalDateTime.parse(to_BASIC_ISO_DATE_TIME(beacon0[1]), myFormatObj);
+                        }
+                        if (beacon0[0].equals("DTEND")) {
+                            ending = LocalDateTime.parse(to_BASIC_ISO_DATE_TIME(beacon0[1]), myFormatObj);
+                        }
+                        if (beacon0[0].equals("LOCATION")) {
+                            String ligneBreakCase = lire.readLine();
+                            while (ligneBreakCase == null) {
+                                ligneBreakCase = lire.readLine();
                             }
-                            if (beacon0[0].equals("DTEND")) {
-                                ending = LocalDateTime.parse(to_BASIC_ISO_DATE_TIME(beacon0[1]), myFormatObj);
-                            }
-                            if (beacon0[0].equals("LOCATION")) {
-                                String ligneBreakCase = lire.readLine();
+                            while (ligneBreakCase.startsWith(" ")) {
+                                beacon0[1] = beacon0[1] + ligneBreakCase.substring(1);
+                                ligneBreakCase = lire.readLine();
                                 while (ligneBreakCase == null) {
                                     ligneBreakCase = lire.readLine();
                                 }
-                                while (ligneBreakCase.startsWith(" ")) {
-                                    beacon0[1] = beacon0[1] + ligneBreakCase.substring(1);
-                                    ligneBreakCase = lire.readLine();
-                                    while (ligneBreakCase == null) {
-                                        ligneBreakCase = lire.readLine();
-                                    }
-                                }
-                                String[] multipleRoomCase = beacon0[1].split(",");
-                                for (Room room : rooms) {
-                                    for (String rString : multipleRoomCase) {
-                                        if (rString.equals(room.getId()) || rString.equals(room.getId() + "\\")) {
-                                            room.getAvailability()[room.getNbEvent() - 1] = new Event(begining, ending);
-                                            room.decrementNbEvent();
-                                            break;
-                                        }
-                                    }
-
-                                }
                             }
+                            String[] multipleRoomCase = beacon0[1].split(",");
+                            for (Room room : rooms) {
+                                for (String rString : multipleRoomCase) {
+                                    if (rString.equals(room.getId()) || rString.equals(room.getId() + "\\")) {
+                                        room.getAvailability()[room.getNbEvent() - 1] = new Event(begining, ending);
+                                        room.decrementNbEvent();
+                                        break;
+                                    }
+                                }
 
-
+                            }
                         }
-                    }
 
-                    ligne = lire.readLine();
+
+                    }
                 }
+
+                ligne = lire.readLine();
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
         }
     }
 
@@ -185,7 +165,7 @@ public class GeneralMethod {
         List<Room> availableRooms = new ArrayList<>(Arrays.asList(rooms));
         for (Room room : rooms) {
             for (Event ev : room.getAvailability()) {
-                if ((toDetermine.isAfter(ev.getStartPoint())||toDetermine.isEqual(ev.getStartPoint())) && toDetermine.isBefore(ev.getEndPoint())) {
+                if ((toDetermine.isAfter(ev.getStartPoint()) || toDetermine.isEqual(ev.getStartPoint())) && toDetermine.isBefore(ev.getEndPoint())) {
                     availableRooms.remove(room);
                     break;
                 }
@@ -223,11 +203,10 @@ public class GeneralMethod {
                     }
                 }
                 fr[i] = new FreeRoom(room, min);
-                i++;
             } else {
                 fr[i] = new FreeRoom(room, null);
-                i++;
             }
+            i++;
 
         }
         return fr;
@@ -239,13 +218,13 @@ public class GeneralMethod {
         if (!file.exists()) {
             return false;
         } else {
-            try (BufferedReader lire = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
-                if(lire.readLine()!=null){
-                    String ligne =lire.readLine();
-                    while(!ligne.startsWith("DTSTAMP")){
+            try (BufferedReader lire = new BufferedReader(new InputStreamReader(Files.newInputStream(file.toPath()), StandardCharsets.UTF_8))) {
+                if (lire.readLine() != null) {
+                    String ligne = lire.readLine();
+                    while (!ligne.startsWith("DTSTAMP")) {
                         ligne = lire.readLine();
                     }
-                    LocalDateTime lastStamp = LocalDateTime.parse(to_BASIC_ISO_DATE_TIME(ligne.split(":")[1]),myFormatObj);
+                    LocalDateTime lastStamp = LocalDateTime.parse(to_BASIC_ISO_DATE_TIME(ligne.split(":")[1]), myFormatObj);
                     SingletonRoomObject.getInstance().setLastStamp(lastStamp.toLocalDate().toString());
                     return lastStamp.toLocalDate().isEqual(LocalDate.now());
                 } else {

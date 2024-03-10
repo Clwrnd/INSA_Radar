@@ -1,6 +1,7 @@
 package fr.insa.insaradar.EdtAnalyse;
 
 public class SingletonRoomObject {
+    // SingletonClass to get different information between two Activities
     private static SingletonRoomObject instance;
     private Room[] rooms;
 

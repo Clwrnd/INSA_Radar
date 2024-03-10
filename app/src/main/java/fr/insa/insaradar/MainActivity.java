@@ -41,7 +41,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
     ImageButton refreshButton;
     TextView lastStamp;
     ArrayList<BuildingModel> buildings = new ArrayList<>();
-    private RecyclerView buildingsRecyclerView;
     private Room[] rooms;
     private boolean isInternetConnection;
     private boolean isBug;
@@ -58,53 +57,44 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
         lastStamp = findViewById(R.id.lastStamp);
 
         setupBuildingModels();
-        buildingsRecyclerView = findViewById(R.id.buildingsRecyclerView);
+        RecyclerView buildingsRecyclerView = findViewById(R.id.buildingsRecyclerView);
         BuildingsAdapter adapter = new BuildingsAdapter(buildings, this, this);
         buildingsRecyclerView.setAdapter(adapter);
         buildingsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         isNetworkAvailable();
 
         ProgressDialog mProgressDialog = ProgressDialog.show(this, "Veuillez patienter","Chargement des données", true);
-        new Thread() {
-            @Override
-            public void run() {
-                isBug =false;
-                ExecutorService exe = Executors.newSingleThreadExecutor();
-                Future<Room[]> rm = exe.submit(EdtAnalyse.initializeFile2(MainActivity.this,isInternetConnection));
-                try {
-                    rooms = rm.get(30, TimeUnit.SECONDS);
-                } catch (ExecutionException | InterruptedException e) {
-                    isBug=true;
-                    rooms=null;
-                } catch (TimeoutException e) {
-                    isBug=true;
-                    rooms=null;
-                }finally {
-                    exe.shutdownNow();
-                }
-                //  rooms = EdtAnalyse.initializeFile(MainActivity.this,isInternetConnection);
-                try {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mProgressDialog.dismiss();
-                            if (rooms==null){
-                                if(isBug){
-                                    Toast.makeText(MainActivity.this,"Error while loading files, please try to refresh the app",Toast.LENGTH_LONG).show();
-                                }else {
-                                    Toast .makeText(MainActivity.this,"No Internet Connection\nNo Existing Version", Toast.LENGTH_LONG).show();
-                                }
-                            } else {
-                                Toast .makeText(MainActivity.this,"Data succesfully received", Toast.LENGTH_SHORT).show();
-
-                            }
-                            lastStamp.setText("Last Stamp: "+SingletonRoomObject.getInstance().getLastStamp());
-                        }
-                    });
-                } catch (final Exception ex) {
-                }
+        new Thread(() -> {
+            isBug =false;
+            ExecutorService exe = Executors.newSingleThreadExecutor();
+            Future<Room[]> rm = exe.submit(EdtAnalyse.initializeFile2(MainActivity.this,isInternetConnection));
+            try {
+                rooms = rm.get(30, TimeUnit.SECONDS);
+            } catch (ExecutionException | InterruptedException | TimeoutException e) {
+                isBug=true;
+                rooms=null;
+            } finally {
+                exe.shutdownNow();
             }
-        }.start();
+            try {
+                runOnUiThread(() -> {
+                    mProgressDialog.dismiss();
+                    if (rooms==null){
+                        if(isBug){
+                            Toast.makeText(MainActivity.this,"Error while loading files, please try to refresh the app",Toast.LENGTH_LONG).show();
+                        }else {
+                            Toast .makeText(MainActivity.this,"No Internet Connection\nNo Existing Version", Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        Toast .makeText(MainActivity.this,"Data succesfully received", Toast.LENGTH_SHORT).show();
+
+                    }
+                    lastStamp.setText("Last Stamp: "+SingletonRoomObject.getInstance().getLastStamp());
+                });
+            } catch (final Exception ex) {
+                Toast.makeText(MainActivity.this,"Fatal Error, retry",Toast.LENGTH_LONG).show();
+            }
+        }).start();
 
 
     }
@@ -113,41 +103,33 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
         isNetworkAvailable();
         if(isInternetConnection) {
             ProgressDialog mProgressDialog = ProgressDialog.show(this, "Veuillez patienter", "Chargement des données", true);
-            new Thread() {
-                @Override
-                public void run() {
-                    isBug = false;
-                    ExecutorService exe = Executors.newSingleThreadExecutor();
-                    Future<Room[]> rm = exe.submit(EdtAnalyse.initializeFile2(MainActivity.this, isInternetConnection));
-                    try {
-                        rooms = rm.get(30, TimeUnit.SECONDS);
-                    } catch (ExecutionException | InterruptedException e) {
-                        isBug = true;
-                        rooms = null;
-                    } catch (TimeoutException e) {
-                        isBug = true;
-                        rooms = null;
-                    } finally {
-                        exe.shutdownNow();
-                    }
-                    try {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mProgressDialog.dismiss();
-                                if (rooms == null && isBug) {
-                                    Toast.makeText(MainActivity.this, "Error while loading files, please try to refresh the app", Toast.LENGTH_LONG).show();
-                                } else {
-                                    Toast.makeText(MainActivity.this, "Data succesfully received", Toast.LENGTH_SHORT).show();
-
-                                }
-                                lastStamp.setText("Last Stamp: " + SingletonRoomObject.getInstance().getLastStamp());
-                            }
-                        });
-                    } catch (final Exception ex) {
-                    }
+            new Thread(() -> {
+                isBug = false;
+                ExecutorService exe = Executors.newSingleThreadExecutor();
+                Future<Room[]> rm = exe.submit(EdtAnalyse.refreshFile(MainActivity.this));
+                try {
+                    rooms = rm.get(30, TimeUnit.SECONDS);
+                } catch (ExecutionException | InterruptedException | TimeoutException e) {
+                    isBug = true;
+                    rooms = null;
+                } finally {
+                    exe.shutdownNow();
                 }
-            }.start();
+                try {
+                    runOnUiThread(() -> {
+                        mProgressDialog.dismiss();
+                        if (rooms == null && isBug) {
+                            Toast.makeText(MainActivity.this, "Error while loading files, please try to refresh the app", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(MainActivity.this, "Data succesfully received", Toast.LENGTH_SHORT).show();
+
+                        }
+                        lastStamp.setText("Last Stamp: " + SingletonRoomObject.getInstance().getLastStamp());
+                    });
+                } catch (final Exception ex) {
+                    Toast.makeText(MainActivity.this,"Fatal Error, retry",Toast.LENGTH_LONG).show();
+                }
+            }).start();
         } else {
             Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
         }
@@ -155,31 +137,26 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
     }
 
     void setupBuildingModels(){
-        String names[] = {"Amphithéâtre","Batiment C","Batiment E"};
+        String[] names = {"Amphithéâtre","Batiment C","Batiment E"};
         for (String name : names) {
             buildings.add(new BuildingModel(name));
         }
-    }
-
-    private List<BuildingModel> getBuildings() {
-        return buildings;
     }
 
     public void handleAccountManagement(View view) {
         mAuth = FirebaseAuth.getInstance();
         if (mAuth != null) {
             user = mAuth.getCurrentUser();
+            Intent intent;
             if (user != null) {
                 // User is signed in, navigate to Account activity
-                Intent intent = new Intent(MainActivity.this, Account.class);
-                startActivity(intent);
-                finish();
+                intent = new Intent(MainActivity.this, Account.class);
             } else {
                 // User is not signed in, navigate to Registration activity
-                Intent intent = new Intent(MainActivity.this, Registration.class);
-                startActivity(intent);
-                finish();
+                intent = new Intent(MainActivity.this, Registration.class);
             }
+            startActivity(intent);
+            finish();
         } else {
             // FirebaseAuth instance is null, show an error message
             Toast.makeText(MainActivity.this, "Error initializing Firebase Auth", Toast.LENGTH_SHORT).show();

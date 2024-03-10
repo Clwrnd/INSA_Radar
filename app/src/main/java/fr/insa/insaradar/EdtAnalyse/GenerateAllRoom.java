@@ -4,11 +4,10 @@
  */
 package fr.insa.insaradar.EdtAnalyse;
 
-import fr.insa.insaradar.RoomModel;
-
 /**
  *
  * @author cidmo
+ * manual management of the disired rooms
  */
 public class GenerateAllRoom {
 
@@ -16,7 +15,7 @@ public class GenerateAllRoom {
         Room[] rooms = new Room[45];
         // Amphi:
         Room AetI = new Room("Amphi A&I E0.19 (277) VP+Visio", "amphi");
-        Room arp = new Room("Amphi ARP E1.01 (112) VP+Visio", "amphi");
+        Room arp = new Room("Amphi ARP E1.01 (129) VP+Visio", "amphi");
         Room chimie = new Room("Amphi Chimie L2.20 (112) VP", "amphi");
         Room elec = new Room("Amphi Elec L0.28 (106) VP", "amphi");
         Room phys = new Room("Amphi Physique L1.38 (106) VP", "amphi");
