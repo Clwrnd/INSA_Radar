@@ -116,7 +116,7 @@ public class Details extends AppCompatActivity implements RecyclerViewListener {
             setupRoomModels(SingletonRoomObject.getInstance().getRooms(), LocalDate.of(Details.this.year, Details.this.month, day), LocalTime.of(hour, minute));
             roomsRecyclerView.getAdapter().notifyDataSetChanged();
         };
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this, onDateSetListener, year, month, day);
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, onDateSetListener, year, month-1, day);
         datePickerDialog.setTitle("Sélectionner la date");
         datePickerDialog.show();
     }
