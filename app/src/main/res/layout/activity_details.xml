@@ -24,32 +24,35 @@
         android:layout_height="wrap_content">
 
         <Button
-            android:id="@+id/datePickerButton"
+            android:id="@+id/timePickerButton"
             style="?android:spinnerStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:text="Date"
+            android:text="Time"
             android:textColor="@color/black"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/stageSpinner"
+            app:layout_constraintEnd_toStartOf="@+id/datePickerButton"
             app:layout_constraintBottom_toBottomOf="parent"
             />
 
-        <Spinner
-            android:id="@+id/stageSpinner"
+        <Button
+            android:id="@+id/datePickerButton"
+            style="?android:spinnerStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Date"
+            android:textColor="@color/black"
             android:layout_marginTop="50dp"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/datePickerButton"
+            app:layout_constraintStart_toEndOf="@+id/timePickerButton"
             />
 </androidx.constraintlayout.widget.ConstraintLayout>
 
