@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
         buildingsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         isNetworkAvailable();
 
-        ProgressDialog mProgressDialog = ProgressDialog.show(this, "Veuillez patienter","Chargement des données", true);
+        ProgressDialog mProgressDialog = ProgressDialog.show(this, "Veuillez patienter","Nous récupérons les informations des salles...", true);
         new Thread(() -> {
             isBug =false;
             ExecutorService exe = Executors.newSingleThreadExecutor();
@@ -81,18 +81,18 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
                     mProgressDialog.dismiss();
                     if (rooms==null){
                         if(isBug){
-                            Toast.makeText(MainActivity.this,"Error while loading files, please try to refresh the app",Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this,"Erreur lors du chargement des fichiers, veuillez relancer l'application",Toast.LENGTH_LONG).show();
                         }else {
-                            Toast .makeText(MainActivity.this,"No Internet Connection\nNo Existing Version", Toast.LENGTH_LONG).show();
+                            Toast .makeText(MainActivity.this,"Pas de connexion à internet", Toast.LENGTH_LONG).show();
                         }
                     } else {
-                        Toast .makeText(MainActivity.this,"Data succesfully received", Toast.LENGTH_SHORT).show();
+                        Toast .makeText(MainActivity.this,"Mise à jour avec succès !", Toast.LENGTH_SHORT).show();
 
                     }
-                    lastStamp.setText("Last Stamp: "+SingletonRoomObject.getInstance().getLastStamp());
+                    lastStamp.setText("Dernière mise à jour: "+SingletonRoomObject.getInstance().getLastStamp());
                 });
             } catch (final Exception ex) {
-                Toast.makeText(MainActivity.this,"Fatal Error, retry",Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this,"Erreur inconnue, veuillez relancer l'application",Toast.LENGTH_LONG).show();
             }
         }).start();
 
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
     private void refreshAction(View view) {
         isNetworkAvailable();
         if(isInternetConnection) {
-            ProgressDialog mProgressDialog = ProgressDialog.show(this, "Veuillez patienter", "Chargement des données", true);
+            ProgressDialog mProgressDialog = ProgressDialog.show(this, "Veuillez patienter", "mise à jour des données", true);
             new Thread(() -> {
                 isBug = false;
                 ExecutorService exe = Executors.newSingleThreadExecutor();
@@ -119,25 +119,25 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
                     runOnUiThread(() -> {
                         mProgressDialog.dismiss();
                         if (rooms == null && isBug) {
-                            Toast.makeText(MainActivity.this, "Error while loading files, please try to refresh the app", Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "Erreur lors du chargement des fichiers, veuillez relancer l'application", Toast.LENGTH_LONG).show();
                         } else {
-                            Toast.makeText(MainActivity.this, "Data succesfully received", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "Mise à jour avec succès !", Toast.LENGTH_SHORT).show();
 
                         }
-                        lastStamp.setText("Last Stamp: " + SingletonRoomObject.getInstance().getLastStamp());
+                        lastStamp.setText("Dernière mise à jour: " + SingletonRoomObject.getInstance().getLastStamp());
                     });
                 } catch (final Exception ex) {
-                    Toast.makeText(MainActivity.this,"Fatal Error, retry",Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this,"Erreur inconnue, veuillez relancer l'application",Toast.LENGTH_LONG).show();
                 }
             }).start();
         } else {
-            Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "Pas de connexion à internet", Toast.LENGTH_SHORT).show();
         }
 
     }
 
     void setupBuildingModels(){
-        String[] names = {"Amphithéâtre","Batiment C","Batiment E"};
+        String[] names = {"Amphithéâtre","Bâtiment C","Bâtiment E"};
         for (String name : names) {
             buildings.add(new BuildingModel(name));
         }
@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
             Intent intent = new Intent(MainActivity.this, Details.class);
             startActivity(intent);
         } else {
-            Toast .makeText(MainActivity.this,"No Existing Version. Try to refresh the app with Internet Connection", Toast.LENGTH_SHORT).show();
+            Toast .makeText(MainActivity.this,"Pas de connexion à internet, veuillez relancer l'application", Toast.LENGTH_SHORT).show();
         }
 
     }
