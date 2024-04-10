@@ -84,6 +84,7 @@ public class Details extends AppCompatActivity implements RecyclerViewListener {
     public void onItemClicked(int position) {
         //on récupère la salle sélectionnée
         RoomModel room = rooms.get(position);
+
         //on disable les autres salles
         for (RoomModel r : rooms) {
             r.setVisible(false);

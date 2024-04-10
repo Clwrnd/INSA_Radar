@@ -150,8 +150,8 @@ public class GenerateAllRoom {
     public static Room[] SpecificRoom(String bat, Room[] rooms){
         switch (bat){
             case "Amphithéâtre": return getAmphi(rooms);
-            case "Batiment C": return getC(rooms);
-            case "Batiment E": return  getE(rooms);
+            case "Bâtiment C": return getC(rooms);
+            case "Bâtiment E": return  getE(rooms);
             default: return  rooms;
         }
     }

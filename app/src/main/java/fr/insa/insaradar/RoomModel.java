@@ -22,6 +22,12 @@ public class RoomModel {
         this.availability = "Disponible jusqu'à: "+availability;
         this.visible = false;
     }
+    public RoomModel(String name, String availability, String description) {
+        this.name = name;
+        this.availability = "Disponible jusqu'à: "+availability;
+        this.description = description+ " places";
+        this.visible = false;
+    }
 
     public void collapse() {
         this.visible = false;

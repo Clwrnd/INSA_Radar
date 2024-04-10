@@ -7,14 +7,13 @@
     android:layout_height="wrap_content">
 
     <androidx.cardview.widget.CardView
-        android:foreground="@drawable/effect"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="13dp"
         android:layout_marginTop="15dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="13dp"
         android:layout_marginBottom="5dp"
-        app:cardElevation="10dp"
+        app:cardElevation="0dp"
         app:cardCornerRadius="20dp"
         app:cardBackgroundColor="@color/blueBlack"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -24,66 +23,77 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="@drawable/gradient_background">
 
             <TextView
                 android:id="@+id/roomTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="15dp"
-                android:textColor="@color/textColor"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:textColor="@color/textColorWhite"
                 android:text="@string/room_name"
-                android:textSize="26sp"
-                android:textStyle="bold"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMaxTextSize="100sp"
+                app:autoSizeMinTextSize="16sp"
+                app:autoSizeStepGranularity="2sp"
+                android:gravity="center"
+                android:fontFamily="@font/montserrat_alternates_extrabold_italic"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                />
-            <View
-                android:id="@+id/underline"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/blueBlack"
-                app:layout_constraintBottom_toBottomOf="parent"
-                />
+            />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/expandedLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginVertical="6dp"
-                app:layout_constraintBottom_toBottomOf="@+id/underline"
+                android:layout_marginTop="6dp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/roomTextView">
-
-
-                <!-- bouton pour réserver une salle -->
-                <Button
-                    android:id="@+id/reserveButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                
+                <!-- Add a textview to show the room availability time -->
+                <TextView
+                    android:id="@+id/roomAvailability"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_margin="10dp"
-                    android:backgroundTint="@color/buttonColor"
-                    android:text="@string/reserve"
-                    android:textColor="@color/white"
+                    android:text="@string/room_availability"
+                    android:textColor="@color/textColorWhite"
+                    android:fontFamily="@font/montserrat_alternates_medium"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMaxTextSize="35sp"
+                    app:autoSizeMinTextSize="15sp"
+                    app:autoSizeStepGranularity="2sp"
+                    android:gravity="center"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintEnd_toStartOf="@+id/roomDescription"
+                    app:layout_constraintTop_toTopOf="parent"
+                    />
+
                 <TextView
                     android:id="@+id/roomDescription"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="10dp"
                     android:text="@string/room_description"
-                    android:textColor="@color/textColor"
-                    app:layout_constraintStart_toEndOf="@+id/reserveButton"
+                    android:textColor="@color/textColorWhite"
+                    android:fontFamily="@font/montserrat_alternates_medium"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMaxTextSize="35sp"
+                    app:autoSizeMinTextSize="15sp"
+                    app:autoSizeStepGranularity="2sp"
+                    android:gravity="right"
+                    app:layout_constraintStart_toEndOf="@+id/roomAvailability"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/reserveButton"
-                    app:layout_constraintBottom_toBottomOf="@+id/reserveButton" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
 

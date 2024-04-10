@@ -34,7 +34,8 @@ public class RoomsAdapter extends RecyclerView.Adapter<RoomsAdapter.RoomViewHold
     @Override
     public void onBindViewHolder(@NonNull RoomViewHolder holder, int position) {
         RoomModel room = rooms.get(position);
-        holder.roomTextView.setText(room.getName() + " - " + room.getAvailability());
+        holder.roomTextView.setText(room.getName());
+        holder.availabilityTextView.setText(room.getAvailability());
         holder.descriptionTextView.setText(room.getDescription());
         boolean visible = room.isVisible();
         holder.expandedLayout.setVisibility(visible ? View.VISIBLE : View.GONE);
@@ -46,13 +47,14 @@ public class RoomsAdapter extends RecyclerView.Adapter<RoomsAdapter.RoomViewHold
     }
 
     public class RoomViewHolder extends RecyclerView.ViewHolder {
-        TextView roomTextView, descriptionTextView;
+        TextView roomTextView, descriptionTextView, availabilityTextView;
         ConstraintLayout expandedLayout;
 
         public RoomViewHolder(View itemView, RecyclerViewListener listener) {
             super(itemView);
             roomTextView = itemView.findViewById(R.id.roomTextView);
             descriptionTextView = itemView.findViewById(R.id.roomDescription);
+            availabilityTextView = itemView.findViewById(R.id.roomAvailability);
             expandedLayout = itemView.findViewById(R.id.expandedLayout);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
