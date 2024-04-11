@@ -42,8 +42,11 @@ public class Details extends AppCompatActivity implements RecyclerViewListener {
         setContentView(R.layout.activity_details);
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
+        /*
+        A terminer plus tard
         ImageButton imageButton = findViewById(R.id.accountButton);
         imageButton.setOnClickListener(this::handleAccountManagement);
+        */
 
         roomsRecyclerView = findViewById(R.id.roomsRecyclerView);
         timePickerButton = findViewById(R.id.timePickerButton);

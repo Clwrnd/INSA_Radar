@@ -1,5 +1,6 @@
 package fr.insa.insaradar;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
     private FirebaseUser user;
     ImageButton imageButton;
     ImageButton refreshButton;
+    ImageButton infoBut;
     TextView lastStamp;
     ArrayList<BuildingModel> buildings = new ArrayList<>();
     private Room[] rooms;
@@ -50,8 +52,12 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
         setContentView(R.layout.activity_main);
         mAuth=FirebaseAuth.getInstance(); //initialisation de l'instance de FirebaseAuth
         user = mAuth.getCurrentUser();
+        /* A terminer plus tard :
         imageButton = findViewById(R.id.imageButton);
         imageButton.setOnClickListener(this::handleAccountManagement);
+        */
+        infoBut = findViewById(R.id.infoBut);
+        infoBut.setOnClickListener(this::showInfo);
         refreshButton= findViewById(R.id.refreshBut);
         refreshButton.setOnClickListener(this::refreshAction);
         lastStamp = findViewById(R.id.lastStamp);
@@ -96,6 +102,22 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
             }
         }).start();
 
+
+    }
+
+    private void showInfo(View view) {
+        AlertDialog.Builder infoDial = new AlertDialog.Builder(this);
+        infoDial.setTitle("Bienvenue sur INSA RADAR ");
+        infoDial.setMessage("Vous pouvez ici trouver une salle libre à n'importe quel moment !!" +
+                " \nSi vous rencontrez des problèmes à charger les données vérifiez que votre connexion tient la route et faites un refresh avec le button " +
+                "en haut à gauche  !\n \n" +
+                "N'hésitez pas à nous faire parvenir vos diverses remarques concernant l'application pour toujours l'améliorer.\n" +
+                "Petit crédit à notre cher Louis Carbo Estaque à qui on doit le concept. " +
+                "\n \n" +
+                "La bise !\n" +
+                "L'équipe: Rudy Virquin,Clara WURTZER et IDMONT Clément\n" +
+                "Contact:  ");
+        infoDial.show();
 
     }
 
