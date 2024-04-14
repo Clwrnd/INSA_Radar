@@ -1,5 +1,6 @@
 package fr.insa.insaradar;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
     private FirebaseUser user;
     ImageButton imageButton;
     ImageButton refreshButton;
+    ImageButton infoBut;
     TextView lastStamp;
     ArrayList<BuildingModel> buildings = new ArrayList<>();
     private Room[] rooms;
@@ -50,8 +52,12 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
         setContentView(R.layout.activity_main);
         mAuth=FirebaseAuth.getInstance(); //initialisation de l'instance de FirebaseAuth
         user = mAuth.getCurrentUser();
+        /* A terminer plus tard :
         imageButton = findViewById(R.id.imageButton);
         imageButton.setOnClickListener(this::handleAccountManagement);
+        */
+        infoBut = findViewById(R.id.infoBut);
+        infoBut.setOnClickListener(this::showInfo);
         refreshButton= findViewById(R.id.refreshBut);
         refreshButton.setOnClickListener(this::refreshAction);
         lastStamp = findViewById(R.id.lastStamp);
@@ -81,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
                     mProgressDialog.dismiss();
                     if (rooms==null){
                         if(isBug){
-                            Toast.makeText(MainActivity.this,"Erreur lors du chargement des fichiers, veuillez relancer l'application",Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this,"Erreur lors du chargement des fichiers, veuillez refresh l'application",Toast.LENGTH_LONG).show();
                         }else {
                             Toast .makeText(MainActivity.this,"Pas de connexion à internet", Toast.LENGTH_LONG).show();
                         }
@@ -96,6 +102,22 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
             }
         }).start();
 
+
+    }
+
+    private void showInfo(View view) {
+        AlertDialog.Builder infoDial = new AlertDialog.Builder(this);
+        infoDial.setTitle("Bienvenue sur INSA RADAR ");
+        infoDial.setMessage("Vous pouvez ici trouver une salle libre à n'importe quel moment !!" +
+                " \nSi vous rencontrez des problèmes pour charger les données, vérifiez que votre connexion tient la route et faites un refresh avec le bouton " +
+                "en haut à gauche !\n \n" +
+                "N'hésitez pas à nous faire parvenir vos diverses remarques concernant l'application pour l'améliorer.\n" +
+                "Petit crédit à notre cher Louis Carbo Estaque à qui on doit le concept. " +
+                "\n \n" +
+                "La bise !\n\n" +
+                "L'équipe:\n- Rudy Virquin et Clément Idmont au développement ; \n- Clara Wurtzer pour le logo.  \n" +
+                "Contact: rudy.virquin@.gmail.com  ");
+        infoDial.show();
 
     }
 
@@ -119,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
                     runOnUiThread(() -> {
                         mProgressDialog.dismiss();
                         if (rooms == null && isBug) {
-                            Toast.makeText(MainActivity.this, "Erreur lors du chargement des fichiers, veuillez relancer l'application", Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "Erreur lors du chargement des fichiers, veuillez refresh l'application", Toast.LENGTH_LONG).show();
                         } else {
                             Toast.makeText(MainActivity.this, "Mise à jour avec succès !", Toast.LENGTH_SHORT).show();
 
@@ -171,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
             Intent intent = new Intent(MainActivity.this, Details.class);
             startActivity(intent);
         } else {
-            Toast .makeText(MainActivity.this,"Pas de connexion à internet, veuillez relancer l'application", Toast.LENGTH_SHORT).show();
+            Toast .makeText(MainActivity.this,"Aucune donnée chargée, veuillez refresh l'application", Toast.LENGTH_SHORT).show();
         }
 
     }
