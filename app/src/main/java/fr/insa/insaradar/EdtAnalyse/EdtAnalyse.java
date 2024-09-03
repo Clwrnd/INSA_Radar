@@ -23,7 +23,7 @@ import java.util.concurrent.Future;
 public class EdtAnalyse {
     public static Callable<Room[]> initializeFile2(Context context, boolean isInternetConnection) {
         return () -> {
-            String sourceUrl = "https://apps-int.insa-strasbourg.fr/ade/export.php?projectId=30&resources=5982,5987,5988,5989,5990,5992";
+            String sourceUrl = "https://apps-int.insa-strasbourg.fr/ade/export.php?projectId=8&resources=5987,5988,5989,5990,5992,5982";
 
             File edt;
             Future<File> file = null;
